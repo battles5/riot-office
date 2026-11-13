@@ -38,11 +38,17 @@ jobs:
       - name: Unit tests (system Python, distribution pypdf)
         run: python3 -m pytest -q -p no:cacheprovider
 
-      - name: Doctor
-        run: riot-office doctor
+      - name: Doctor (also checks that the Excel functions are registered)
+        run: |
+          riot-office doctor
+          riot-office addin status
+          unopkg list --shared 2>/dev/null | grep -q org.riotoffice.excel-functions
 
       - name: LibreOffice sees the Riot configuration
         run: /usr/bin/python3 ci/check_lo_config.py soffice
+
+      - name: "The Excel functions calculate (real LibreOffice, GROUPBY, PIVOTBY, REGEX...)"
+        run: python3 ci/check_excel_functions.py soffice "$RUNNER_TEMP/excel-functions"
 
       - name: "Integration: convert, PDF tools, inventory, fidelity, language"
         run: |
@@ -78,6 +84,7 @@ jobs:
         run: |
           sudo apt-get purge -y -q riot-office
           test -z "$(ls /etc/libreoffice/registry/riot-office*.xcd 2>/dev/null)"
+          ! unopkg list --shared 2>/dev/null | grep -q org.riotoffice.excel-functions
           test ! -e /usr/bin/riot-office
 
       - uses: actions/upload-artifact@v4
@@ -130,6 +137,14 @@ jobs:
           if (-not (Test-Path "$env:ProgramFiles\LibreOffice\program\soffice.exe")) { throw "LibreOffice missing" }
           if ((Get-ChildItem "$env:ProgramFiles\LibreOffice\share\registry\riot-office*.xcd").Count -ne 4) { throw "Riot configuration missing" }
           if (-not (Test-Path "$env:WINDIR\Fonts\Carlito-Regular.ttf")) { throw "Carlito missing" }
+
+      - name: The Excel functions are registered and calculate
+        run: |
+          $lo = "$env:ProgramFiles\LibreOffice\program"
+          & "$lo\unopkg.com" list --shared | Select-String "org.riotoffice.excel-functions"
+          if ($LASTEXITCODE) { throw "Excel functions not registered" }
+          python ci\check_excel_functions.py "$lo\soffice.exe" "$env:RUNNER_TEMP\excel-functions"
+          if ($LASTEXITCODE) { throw "Excel functions check failed" }
 
       - name: Doctor, configuration and a conversion
         run: |

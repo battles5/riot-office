@@ -3,16 +3,35 @@
 ## 0.1 — the suite (this release)
 
 - LibreOffice 26.8.3 distributed and configured for Office users, English and Italian.
+- **Excel functions for Calc**: `GROUPBY`, `PIVOTBY`, `PERCENTOF`, `REGEXTEST`, `REGEXEXTRACT`,
+  `REGEXREPLACE` ([details](EXCEL-FUNCTIONS.md)).
 - Synthwave launcher, PDF tools (merge, split, rotate, convert, PDF/A, OCR).
 - Compatibility inventory and fidelity check.
 - Windows setup and Ubuntu package, tested on clean machines by CI.
 
-## 0.2 — trial and polish
+## 0.2 — the Office feel, and more Excel
+
+What Riot Office adds is what it is for, so this is where most of the work goes:
+
+- **Riot theme**: an icon set and colours of its own for Writer, Calc and Impress, and a start
+  screen in the spirit of the launcher. Original artwork, not Office's.
+- **Word and Excel habits**: keyboard shortcuts and menu entries where LibreOffice's defaults
+  differ, packaged in an extension.
+- **Riot Query**: a Power Query-like dialog in Calc to import, transform and refresh data (CSV,
+  Excel, ODS, databases). A reduced version of Power Query, not a clone.
+- **`.xlsx` round trip for the Riot functions**: write them the way Excel does (`_xlfn.GROUPBY`)
+  and read them back. LibreOffice's `.xlsx` filter only knows add-in functions from a fixed list, so
+  this needs a document-event handler in the extension or a contribution to LibreOffice itself.
+- **Templates** (letter, report, budget, slide deck) in English and Italian.
+- More Excel functions where Calc still lacks them.
+
+Not planned: Power Pivot / DAX and slicers.
+
+### Polish
 
 - Fidelity check with pixel comparison (SSIM per page) next to text and page count.
 - Inventory: Office add-ins and external links; HTML report.
 - Launcher: recent files, drag and drop onto the window.
-- Riot templates (letter, report, budget, slide deck) in English and Italian.
 - Code signing for the Windows setup.
 
 ## 0.3 — LibreOffice 27.2

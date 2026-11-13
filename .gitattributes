@@ -4,3 +4,5 @@
 *.png binary
 *.ico binary
 *.bmp binary
+*.rdb binary
+*.oxt binary

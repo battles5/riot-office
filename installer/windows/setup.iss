@@ -65,6 +65,8 @@ en.InstallingHelp=Installing the LibreOffice help...
 it.InstallingHelp=Installazione della guida di LibreOffice...
 en.Configuring=Applying the Riot Office configuration...
 it.Configuring=Applicazione della configurazione di Riot Office...
+en.InstallingAddin=Installing the Excel functions for Calc...
+it.InstallingAddin=Installazione delle funzioni Excel per Calc...
 en.Launch=Start Riot Office
 it.Launch=Avvia Riot Office
 en.Guide=User guide
@@ -81,6 +83,7 @@ Name: "desktopicon"; Description: "{cm:DesktopIcon}"
 Source: "{#Stage}\runtime\*"; DestDir: "{app}\runtime"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#Stage}\riot_office\*"; DestDir: "{app}\riot_office"; Flags: ignoreversion
 Source: "{#Stage}\config\*"; DestDir: "{app}\config"; Flags: ignoreversion
+Source: "{#Stage}\addins\*.oxt"; DestDir: "{app}\addins"; Flags: ignoreversion
 Source: "{#Stage}\assets\*"; DestDir: "{app}\assets"; Flags: ignoreversion
 Source: "{#Stage}\docs\*"; DestDir: "{app}\docs"; Flags: ignoreversion
 Source: "{#Stage}\LICENSE.txt"; DestDir: "{app}"; Flags: ignoreversion
@@ -110,14 +113,17 @@ Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\libreoffice\{#LoMsi}"" /qn /nor
 Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\libreoffice\LibreOffice_{#LoVersion}_Win_x86-64_helppack_en-US.msi"" /qn /norestart ALLUSERS=1"; StatusMsg: "{cm:InstallingHelp}"; Flags: waituntilterminated; Check: NeedLibreOffice
 Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\libreoffice\LibreOffice_{#LoVersion}_Win_x86-64_helppack_it.msi"" /qn /norestart ALLUSERS=1"; StatusMsg: "{cm:InstallingHelp}"; Flags: waituntilterminated; Check: NeedLibreOffice
 Filename: "{#Py}"; Parameters: "-I -m riot_office config install"; WorkingDir: "{app}"; StatusMsg: "{cm:Configuring}"; Flags: runhidden waituntilterminated
+Filename: "{#Py}"; Parameters: "-I -m riot_office addin install"; WorkingDir: "{app}"; StatusMsg: "{cm:InstallingAddin}"; Flags: runhidden waituntilterminated
 Filename: "{#PyW}"; Parameters: "-m riot_office"; WorkingDir: "{userdocs}"; Description: "{cm:Launch}"; Flags: postinstall nowait skipifsilent
 
 [UninstallRun]
+Filename: "{#Py}"; Parameters: "-I -m riot_office addin uninstall"; WorkingDir: "{app}"; Flags: runhidden; RunOnceId: "RiotAddin"
 Filename: "{#Py}"; Parameters: "-I -m riot_office config uninstall"; WorkingDir: "{app}"; Flags: runhidden; RunOnceId: "RiotConfig"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\runtime"
 Type: filesandordirs; Name: "{app}\riot_office"
+Type: filesandordirs; Name: "{app}\addins"
 
 [Code]
 var

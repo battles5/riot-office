@@ -76,6 +76,10 @@ if ($LASTEXITCODE) { throw "pip install failed" }
 # ".." (the install folder) makes the riot_office package importable.
 [IO.File]::WriteAllText("$stage\runtime\python312._pth", "python312.zip`r`nDLLs`r`nLib`r`nLib\site-packages`r`n..`r`n")
 
+Step "Excel functions for Calc (extension)"
+& "$stage\runtime\python.exe" "$root\addins\calc\build_oxt.py" --out "$stage\addins"
+if ($LASTEXITCODE) { throw "build_oxt.py failed" }
+
 Step "Riot Office: program, configuration, artwork, documentation"
 New-Item -ItemType Directory -Force "$stage\riot_office", "$stage\config", "$stage\assets", "$stage\docs" | Out-Null
 Copy-Item "$root\riot_office\*.py" "$stage\riot_office"

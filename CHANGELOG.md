@@ -9,6 +9,11 @@ First release.
   use the tabbed (ribbon-like) interface, run only trusted macros, and never phone home
   (no update check, no crash report upload). Four small configuration layers, `config/riot-office*.xcd`
   (common, Writer, Calc, Impress), identical on Windows and Ubuntu; users can still change every setting.
+- **Excel functions for Calc**: `GROUPBY`, `PIVOTBY`, `PERCENTOF`, `REGEXTEST`, `REGEXEXTRACT`,
+  `REGEXREPLACE`, as a Calc extension installed by both installers (`riot-office addin`). The
+  aggregation is named by text, in English or Italian (`"SUM"`, `"SOMMA"`, `"SUM,AVERAGE"`). They
+  work when typed in Calc and are saved in `.ods`; in `.xlsx` they come back as `#NAME?` (a limit of
+  LibreOffice's `.xlsx` filter). See `docs/EXCEL-FUNCTIONS.md`.
 - **English and Italian** from day one: the launcher, the Windows setup wizard, the Linux menu
   entries and LibreOffice itself (interface and help). The Language menu switches the launcher
   and LibreOffice together.
@@ -21,7 +26,8 @@ First release.
   `inventory`, `fidelity`.
 - **Compatibility inventory**: scans a folder of Office files for VBA macros, Power Query,
   Power Pivot data models, slicers, pivot tables, Excel functions Calc lacks (or gets in 27.2),
-  Aptos fonts, SmartArt and encrypted files. Markdown and CSV reports.
+  Aptos fonts, SmartArt and encrypted files. Markdown and CSV reports. It tells apart the functions
+  the Riot add-in provides from the ones that are still missing.
 - **Fidelity check**: converts a corpus with LibreOffice and compares it with PDFs exported from
   Microsoft Office (page count and text similarity).
 - **Installers**: `RiotOffice-Setup-0.1.0.exe` for Windows 10/11 (bundles LibreOffice, help in

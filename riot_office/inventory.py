@@ -6,7 +6,8 @@ Nothing is executed or converted: the files are opened as ZIP (OOXML) or scanned
 - macros (VBA projects in docm/xlsm/pptm or in legacy doc/xls/ppt);
 - Power Query queries and the Power Pivot data model (no equivalent in Calc);
 - slicers and timelines, pivot tables, external data connections;
-- Excel functions that Calc does not have yet, or only from a later version;
+- Excel functions that Calc does not have yet, only from a later version, or that the Riot add-in
+  provides (GROUPBY, PIVOTBY, PERCENTOF, REGEX*: they must be re-entered in Calc);
 - references to Microsoft fonts without a free metric clone (Aptos);
 - SmartArt diagrams;
 - encrypted files (which cannot be scanned).
@@ -28,9 +29,11 @@ OLE_MAGIC = b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1"
 LATER_FUNCTIONS = {  # merged in LibreOffice master in 2026, expected in 27.2 (February 2027)
     "LAMBDA", "MAP", "REDUCE", "SCAN", "BYROW", "BYCOL", "MAKEARRAY", "ISOMITTED",
 }
-MISSING_FUNCTIONS = {  # no implementation in Calc as of 26.8
-    "GROUPBY", "PIVOTBY", "PERCENTOF", "TRIMRANGE", "REGEXTEST", "REGEXREPLACE", "REGEXEXTRACT",
-    "IMAGE", "STOCKHISTORY", "TRANSLATE", "DETECTLANGUAGE", "COPILOT", "PY",
+RIOT_FUNCTIONS = {  # provided by the Riot add-in (addins/calc); usable when typed in Calc, not imported from .xlsx
+    "GROUPBY", "PIVOTBY", "PERCENTOF", "REGEXTEST", "REGEXREPLACE", "REGEXEXTRACT",
+}
+MISSING_FUNCTIONS = {  # no implementation in Calc as of 26.8, and none in the Riot add-in
+    "TRIMRANGE", "IMAGE", "STOCKHISTORY", "TRANSLATE", "DETECTLANGUAGE", "COPILOT", "PY",
 }
 FUNCTION_RE = re.compile(rb"_xlfn\.(?:_xlws\.)?([A-Z][A-Z0-9.]*)\(")
 
@@ -42,6 +45,7 @@ FINDINGS = {
     "pivot_tables": "Pivot tables (supported; check layout and calculated fields)",
     "external_connections": "External data connections (check them by hand)",
     "functions_later": "Excel functions expected in LibreOffice 27.2",
+    "functions_riot": "Excel functions the Riot add-in provides (re-enter them in Calc: .xlsx formulas do not import)",
     "functions_missing": "Excel functions not available in Calc",
     "aptos_font": "Aptos font (no free metric clone; layout may change)",
     "smartart": "SmartArt diagrams (shown as a picture fallback, not editable)",
@@ -99,6 +103,9 @@ def _scan_ooxml(path: Path, report: FileReport) -> None:
                     fn = match.group(1).decode("ascii")
                     if fn in LATER_FUNCTIONS:
                         report.findings.add("functions_later")
+                        report.functions.add(fn)
+                    elif fn in RIOT_FUNCTIONS:
+                        report.findings.add("functions_riot")
                         report.functions.add(fn)
                     elif fn in MISSING_FUNCTIONS:
                         report.findings.add("functions_missing")
@@ -166,8 +173,8 @@ def markdown(reports: list[FileReport], root: Path) -> str:
     lines += [f"| {FINDINGS[key]} | {by_finding[key]} |" for key in FINDINGS if by_finding[key]]
     if functions:
         lines += ["", "## Excel functions to watch", "", "| Function | Files | Status |", "|---|---:|---|"]
-        lines += [f"| {fn} | {n} | {'LibreOffice 27.2' if fn in LATER_FUNCTIONS else 'missing'} |"
-                  for fn, n in functions.most_common()]
+        status = {**dict.fromkeys(LATER_FUNCTIONS, "LibreOffice 27.2"), **dict.fromkeys(RIOT_FUNCTIONS, "Riot add-in")}
+        lines += [f"| {fn} | {n} | {status.get(fn, 'missing')} |" for fn, n in functions.most_common()]
     attention = [r for r in reports if not r.ok]
     if attention:
         lines += ["", "## Files that need attention", ""]

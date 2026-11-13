@@ -4,6 +4,7 @@
     riot-office open calc [FILES]       open a LibreOffice module or files
     riot-office doctor                  check LibreOffice, configuration, fonts, OCR
     riot-office config install          install the Riot configuration (administrator/root)
+    riot-office addin install           the Excel functions for Calc (GROUPBY, PIVOTBY, REGEX...)
     riot-office language it             interface language of Riot Office and LibreOffice
     riot-office convert FILES --to pdf  convert with LibreOffice headless (--pdfa for PDF/A-2b)
     riot-office pdf merge OUT IN...     merge, split, rotate, ocr
@@ -16,7 +17,7 @@ import shutil
 import sys
 from pathlib import Path
 
-from . import APP_NAME, __version__, config, i18n, libreoffice, pdftools
+from . import APP_NAME, __version__, addin, config, i18n, libreoffice, pdftools
 
 
 def _need_libreoffice() -> libreoffice.Installation:
@@ -55,6 +56,15 @@ def cmd_doctor(args) -> int:
     else:
         problems += 1
         print(f"  [!!] Riot configuration missing or outdated: run 'riot-office config install' as administrator")
+    try:
+        have = addin.is_available(inst)
+    except (OSError, FileNotFoundError):
+        have = False
+    if have:
+        print("  [ok] Excel functions for Calc (GROUPBY, PIVOTBY, PERCENTOF, REGEX*)")
+    else:
+        problems += 1
+        print("  [!!] Excel functions for Calc not installed: run 'riot-office addin install' as administrator")
     for family in ("Carlito", "Caladea"):
         if _font_installed(family):
             print(f"  [ok] font {family}")
@@ -92,6 +102,22 @@ def cmd_config(args) -> int:
     else:
         print("installed" if config.is_installed(inst) else "not installed")
         return 0 if config.is_installed(inst) else 1
+    return 0
+
+
+def cmd_addin(args) -> int:
+    inst = _need_libreoffice()
+    try:
+        if args.action == "install":
+            print(f"installed {addin.install(inst, user=args.user)}")
+        elif args.action == "uninstall":
+            print("removed" if addin.uninstall(inst, user=args.user) else "not installed")
+        else:
+            installed = addin.is_installed(inst, user=True) if args.user else addin.is_available(inst)
+            print("installed" if installed else "not installed")
+            return 0 if installed else 1
+    except PermissionError:
+        raise SystemExit("permission denied: run as administrator (Windows) or with sudo (Linux), or add --user")
     return 0
 
 
@@ -177,6 +203,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("action", choices=("install", "uninstall", "status"))
     p.add_argument("--source", help="a different folder (or single .xcd file) to install")
     p.set_defaults(func=cmd_config)
+
+    p = sub.add_parser("addin", help="install, remove or check the Excel functions for Calc")
+    p.add_argument("action", choices=("install", "uninstall", "status"))
+    p.add_argument("--user", action="store_true", help="for the current user only (no administrator rights needed)")
+    p.set_defaults(func=cmd_addin)
 
     p = sub.add_parser("language", help="show or set the interface language (Riot Office and LibreOffice)")
     p.add_argument("code", nargs="?", choices=tuple(i18n.LANGUAGES))

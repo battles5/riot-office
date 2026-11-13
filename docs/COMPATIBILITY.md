@@ -34,14 +34,16 @@ are, and `riot-office inventory` tells you which of *your* files sit on them.
 | XLOOKUP, XMATCH, FILTER, SORT, SORTBY, UNIQUE, SEQUENCE, RANDARRAY, LET | ✅ |
 | VSTACK, HSTACK, TAKE, DROP, TEXTSPLIT, TEXTBEFORE, TEXTAFTER, dynamic arrays (spill), `#SPILL!` | ✅ |
 | LAMBDA, MAP, REDUCE, SCAN, BYROW, BYCOL, MAKEARRAY, the `#` spill reference | ⏳ LibreOffice 27.2 (February 2027) |
-| GROUPBY, PIVOTBY, PERCENTOF, REGEXTEST/REGEXREPLACE/REGEXEXTRACT, IMAGE | ❌ |
+| GROUPBY, PIVOTBY, PERCENTOF, REGEXTEST, REGEXEXTRACT, REGEXREPLACE | ✅ **Riot add-in**: typed in Calc and saved in `.ods`; in `.xlsx` they come back as `#NAME?` ([details](EXCEL-FUNCTIONS.md)) |
+| IMAGE, STOCKHISTORY, TRANSLATE, COPILOT, PY | ❌ |
 | Slicers and timelines | ❌ |
 | **Power Query** (Get & Transform) | ❌ the data is shown, the queries cannot be refreshed |
 | **Power Pivot / Data Model / DAX** | ❌ |
 | VBA macros | ⚠️ partly: simple Excel macros can run with `Option VBASupport 1`; UserForms and ActiveX are limited |
 | Sheet size | 1,048,576 rows × 16,384 columns, like Excel |
 
-**Rule of thumb:** run the inventory. If only a few workbooks use Power Query, Power Pivot or
+**Rule of thumb:** run the inventory. Files that call `GROUPBY`, `PIVOTBY` or `REGEX*` are listed too: their
+formulas have to be re-entered in Calc, which provides them through the Riot add-in. If only a few workbooks use Power Query, Power Pivot or
 complex VBA, rewrite them (Calc formulas, LibreOffice Basic or Python scripts). If many do, keep a
 few Excel licences for the people who maintain them: it costs far less than chasing parity.
 

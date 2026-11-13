@@ -8,9 +8,11 @@
   <em>ｌｏｕｄ　ｃｏｌｏｕｒｓ，　ｌｏｃａｌ　ｆｉｌｅｓ</em> — a desktop office suite that lives on your PC, built on LibreOffice.<br>
   <a href="https://github.com/battles5/riot-office/releases/latest"><strong>Download for Windows or Ubuntu</strong></a>
   ·
-  <a href="docs/Guide.html">User guide</a>
+  <a href="docs/EXCEL-FUNCTIONS.md">Excel functions</a>
   ·
   <a href="docs/COMPATIBILITY.md">Compatibility</a>
+  ·
+  <a href="docs/Guide.html">User guide</a>
   ·
   <a href="docs/ROADMAP.md">Roadmap</a>
   ·
@@ -32,19 +34,64 @@
 Riot Office is what office software used to be: you install it, it runs on your computer, your
 files stay on your disk. No account, no cloud, no subscription.
 
-Under the hood it is **LibreOffice**, unmodified, set up to feel like the Office most people know:
-documents, spreadsheets and presentations are saved as `.docx`, `.xlsx` and `.pptx` by default,
-with the tabbed interface, fonts that keep Calibri and Cambria documents on the same pages, and
-English or Italian at the click of a menu. Around it, a synthwave launcher with PDF tools and two
-helpers for anyone moving away from Microsoft Office: an **inventory** that tells you which files
-will need attention, and a **fidelity check** that measures how close the result is.
+It is built on **LibreOffice**, but it is not LibreOffice as it comes. The aim is a suite that feels
+and works like the Word, Excel, PowerPoint and Acrobat people already know, so moving over is not a
+step down. This page says plainly what Riot Office adds, what is still to come, and what cannot be
+done.
 
 | You know | In Riot Office | |
 |---|---|---|
-| Word | **Riot Writer** | LibreOffice Writer |
-| Excel | **Riot Calc** | LibreOffice Calc |
-| PowerPoint | **Riot Impress** | LibreOffice Impress |
-| Acrobat | **Riot PDF** | PDF tools in the launcher today; a full editor is [on the roadmap](docs/ROADMAP.md) |
+| Word | **Riot Writer** | LibreOffice Writer, set up like Word |
+| Excel | **Riot Calc** | LibreOffice Calc, plus the Excel functions it lacks |
+| PowerPoint | **Riot Impress** | LibreOffice Impress, set up like PowerPoint |
+| Acrobat | **Riot PDF** | PDF tools today; a full editor is planned |
+
+## What Riot Office adds
+
+✅ in this release · 🛠 planned, see the [roadmap](docs/ROADMAP.md) · ❌ not possible, or not worth promising
+
+### Excel
+
+| | |
+|---|---|
+| ✅ **`GROUPBY`, `PIVOTBY`, `PERCENTOF`** | Excel 365's grouping and cross-table functions, which Calc does not have. Aggregation by name (`"SUM"`, `"SOMMA"`, `"SUM,AVERAGE"`), totals, sorting, filters |
+| ✅ **`REGEXTEST`, `REGEXEXTRACT`, `REGEXREPLACE`** | Excel's regular-expression functions, with Excel's arguments, on single cells or whole ranges |
+| ✅ **Inventory of your workbooks** | Finds macros, Power Query, data models, slicers and the functions Calc lacks, across a whole share, without opening a file |
+| 🛠 **A Power Query-like tool** | Import, transform and refresh data (CSV, Excel, ODS, databases) from a dialog |
+| 🛠 **`.xlsx` round trip for the Riot functions** | Today a formula using them is kept as values in `.xlsx`; see below |
+| ❌ **Power Pivot / DAX, slicers** | Too large to promise |
+
+> **Read before relying on it.** The Riot functions work when typed in Calc and are saved in `.ods`.
+> In `.xlsx` they are written under an internal name that Excel does not know, and they show
+> `#NAME?` when the file is reopened; the values stay. Details and the remaining differences from
+> Excel are in [docs/EXCEL-FUNCTIONS.md](docs/EXCEL-FUNCTIONS.md).
+
+### Word, Excel, PowerPoint: the Office feel
+
+| | |
+|---|---|
+| ✅ **Saves as `.docx` / `.xlsx` / `.pptx` by default** | And never asks "keep current format?" |
+| ✅ **Tabbed, ribbon-like interface** | On by default in Writer, Calc and Impress |
+| ✅ **Documents keep their pages** | Carlito and Caladea (metric-compatible with Calibri and Cambria) on both systems; Aptos falls back to Carlito |
+| ✅ **English and Italian everywhere** | Launcher, setup, menu entries, LibreOffice's interface and help; one switch changes them together |
+| ✅ **Quiet by default** | No update check, no crash report upload, no tip-of-the-day; only trusted macros run |
+| ✅ **Fidelity check** | Compare how LibreOffice renders your documents with PDFs exported from Microsoft Office: page count and text similarity, file by file |
+| 🛠 **Riot theme** | Icons, colours and start screen of its own, in the same spirit as the launcher |
+| 🛠 **Word / Excel keyboard shortcuts and menus** | Where LibreOffice's defaults differ |
+| 🛠 **Templates** | Letter, report, budget, slide deck, in English and Italian |
+| ❌ **A pixel-for-pixel copy of Office's look** | Their icons and trade dress are not ours to copy |
+| ❌ **Full VBA** | Excel macros partly run; Word and PowerPoint macros do not |
+
+### Acrobat
+
+| | |
+|---|---|
+| ✅ **Merge, split, rotate** | From the launcher or `riot-office pdf` |
+| ✅ **Documents to PDF, and PDF/A-2b** | Archive-ready, from any file Riot Office opens |
+| ✅ **OCR** | Makes scans searchable (with OCRmyPDF and Tesseract installed) |
+| 🛠 **Riot PDF editor** | Viewer, annotations, text editing, forms, redaction, compare — built on PDF4QT |
+| 🛠 **Italian digital signatures** | Smart cards (CNS and qualified providers), PAdES and CAdES `.p7m`, verification against the EU trusted lists |
+| ❌ **Acrobat-grade paragraph reflow, PDF to Word, dynamic XFA forms** | They will stay behind Acrobat for a long time |
 
 ## Why "riot"?
 
@@ -53,38 +100,7 @@ will need attention, and a **fidelity check** that measures how close the result
 - **A quiet riot against lock-in.** Your documents, your disk, open formats underneath. Nothing is
   uploaded, nothing expires, nothing needs a licence server.
 - **Do it yourself.** Like a punk record, it is made from parts anyone can get: free software,
-  assembled and tuned, not rewritten.
-
-## Features
-
-- **LibreOffice 26.8, tuned for Office users** (one configuration layer, the same on both systems):
-  - new files saved as `.docx` / `.xlsx` / `.pptx`, with no "keep current format?" question;
-  - tabbed, ribbon-like interface in Writer, Calc and Impress;
-  - only trusted or signed macros run;
-  - nothing leaves the PC: no update check, no crash report upload;
-  - every setting can still be changed by the user.
-- **English and Italian**: launcher, setup wizard, menu entries, LibreOffice's interface and help.
-  The *Language* menu switches the launcher and LibreOffice together.
-- **Fonts**: Carlito and Caladea, metric-compatible with Calibri and Cambria, so pages break where
-  they did in Word. Aptos (Office's newer default, no free clone yet) falls back to Carlito.
-- **Launcher**: Writer, Calc, Impress, open any file, and PDF tools — merge, split, rotate,
-  convert to PDF or **PDF/A-2b** for archiving, **OCR** to make scans searchable (with
-  OCRmyPDF and Tesseract installed).
-- **Compatibility inventory**: point it at a folder or a whole share. It finds VBA macros,
-  Power Query, Power Pivot data models, slicers, pivot tables, Excel functions Calc does not have
-  yet, Aptos fonts, SmartArt and encrypted files, without opening or running anything.
-- **Fidelity check**: export a set of documents to PDF from Microsoft Office once; Riot Office
-  converts the same documents and reports page counts and text similarity, file by file.
-- **Installers for Windows and Ubuntu**, built and tested on clean machines by GitHub Actions for
-  every change.
-
-## Excel users, read this first
-
-Calc covers pivot tables, filters, conditional formatting and the modern dynamic-array functions
-(XLOOKUP, FILTER, SORT, UNIQUE, LET, VSTACK, TEXTSPLIT, ...). LAMBDA and its friends arrive with
-LibreOffice 27.2 (February 2027). **Power Query, Power Pivot / Data Model, GROUPBY / PIVOTBY and
-slicers are not available**, and VBA macros run only in part. Run the inventory on your files
-before switching: see [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md).
+  assembled and tuned, with new parts where something was missing.
 
 ## Requirements
 
@@ -104,7 +120,7 @@ before switching: see [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md).
 2. Run it. The setup is not digitally signed yet: if Windows shows "Windows protected your PC",
    choose *More info* → *Run anyway*.
 3. Pick English or Italian and follow the wizard. It installs LibreOffice (skipped when the same
-   version is already there), the fonts, the Riot configuration and the launcher.
+   version is already there), the fonts, the Riot configuration, the Excel functions and the launcher.
 
 The Start menu gets *Riot Office*, *Riot Writer*, *Riot Calc*, *Riot Impress* and the guide.
 `.docx`, `.xlsx`, `.pptx` and the older Office formats open with LibreOffice.
@@ -122,8 +138,8 @@ sudo apt install ./riot-office_0.1.0_all.deb
 ```
 
 `apt` pulls LibreOffice, the Italian language pack, the fonts and the dictionaries from Ubuntu's
-archive, so they keep getting Ubuntu's security updates. Ubuntu 24.04 ships an older LibreOffice
-(24.2); for 26.8 add the LibreOffice PPA first:
+archive, so they keep getting Ubuntu's security updates, and registers the Excel functions. Ubuntu
+24.04 ships an older LibreOffice (24.2); for 26.8 add the LibreOffice PPA first:
 
 ```bash
 sudo add-apt-repository ppa:libreoffice/ppa
@@ -143,6 +159,7 @@ riot-office convert *.docx --to pdf --pdfa           # PDF/A-2b for archiving
 riot-office pdf merge all.pdf a.pdf b.pdf            # merge, split, rotate, ocr
 riot-office inventory //server/share --out inventory.md --csv inventory.csv
 riot-office fidelity corpus/ office-pdfs/ --out fidelity.md
+riot-office addin install                            # the Excel functions, if they are missing
 riot-office language it                              # Italian everywhere
 ```
 
@@ -151,11 +168,13 @@ On Windows the command is `"C:\Program Files\Riot Office\runtime\python.exe" -m 
 ## How it is built
 
 ```
-riot_office/       launcher (Tk), command line, LibreOffice helpers, PDF tools, inventory, fidelity
+riot_office/       launcher (Tk), command line, LibreOffice helpers, PDF tools, inventory, fidelity,
+                   excel_functions.py (the logic of GROUPBY, PIVOTBY, REGEX*, in plain Python)
+addins/calc/       the Calc extension: IDL interface, Python component, names in English and Italian
 config/            riot-office*.xcd: the LibreOffice configuration layers (common + one per module)
 installer/         Windows setup (Inno Setup + PowerShell) and Ubuntu .deb, pinned downloads
 assets/            artwork and the script that draws it
-docs/              guide, compatibility matrix, roadmap, strategy
+docs/              guide, Excel functions, compatibility matrix, roadmap, strategy
 ci/                checks run by GitHub Actions on real installs
 ```
 
@@ -168,11 +187,11 @@ python -m riot_office
 ```
 
 Build the installers: `bash installer/linux/build_deb.sh` on Linux,
-`installer\windows\build_installer.ps1` on Windows (needs Inno Setup 6). Redraw the artwork with
-`python assets/make_art.py`.
+`installer\windows\build_installer.ps1` on Windows (needs Inno Setup 6). Package the Excel functions
+alone with `python addins/calc/build_oxt.py`. Redraw the artwork with `python assets/make_art.py`.
 
-The [strategy](docs/STRATEGY.md) explains the choices: why LibreOffice is distributed and
-configured rather than forked, and why the PDF editor will be built on PDF4QT.
+The [strategy](docs/STRATEGY.md) explains the choices: why LibreOffice is distributed, configured
+and extended rather than forked, and why the PDF editor will be built on PDF4QT.
 
 ## Licence
 

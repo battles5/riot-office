@@ -1,0 +1,46 @@
+/* Riot Office: the interface through which Calc calls the Riot add-in functions.
+ *
+ * Calc finds an add-in function by reflecting on the interface its service implements, so every
+ * function is declared here. A cell range arrives as sequence< sequence< any > >; the last
+ * parameter of each method, sequence< any >, collects the optional arguments of the formula.
+ * Compile with addins/calc/build_oxt.py --types (needs the LibreOffice SDK). */
+
+module org { module riotoffice { module calc {
+
+interface XRiotFunctions : com::sun::star::uno::XInterface
+{
+    any groupby(
+        [in] sequence< sequence< any > > rowFields,
+        [in] sequence< sequence< any > > values,
+        [in] any function,
+        [in] sequence< any > options );
+
+    any pivotby(
+        [in] sequence< sequence< any > > rowFields,
+        [in] sequence< sequence< any > > colFields,
+        [in] sequence< sequence< any > > values,
+        [in] any function,
+        [in] sequence< any > options );
+
+    any percentof(
+        [in] sequence< sequence< any > > dataSubset,
+        [in] sequence< sequence< any > > dataAll );
+
+    any regextest(
+        [in] any text,
+        [in] any pattern,
+        [in] sequence< any > options );
+
+    any regexextract(
+        [in] any text,
+        [in] any pattern,
+        [in] sequence< any > options );
+
+    any regexreplace(
+        [in] any text,
+        [in] any pattern,
+        [in] any replacement,
+        [in] sequence< any > options );
+};
+
+}; }; };

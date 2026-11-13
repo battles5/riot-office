@@ -230,7 +230,7 @@ def make_zip(path: Path, files: dict[str, str | bytes]) -> Path:
 
 def test_inventory_finds_excel_features(tmp_path):
     sheet = ('<worksheet><sheetData><row><c><f>_xlfn.LAMBDA(x,x+1)(2)</f></c>'
-             '<c><f>_xlfn._xlws.GROUPBY(A1:A3,B1:B3,SUM)</f></c><c><f>_xlfn.XLOOKUP(1,A:A,B:B)</f></c></row></sheetData></worksheet>')
+             '<c><f>_xlfn._xlws.GROUPBY(A1:A3,B1:B3,SUM)</f></c><c><f>_xlfn.IMAGE("x")</f></c><c><f>_xlfn.XLOOKUP(1,A:A,B:B)</f></c></row></sheetData></worksheet>')
     make_zip(tmp_path / "model.xlsm", {
         "[Content_Types].xml": "<Types/>",
         "xl/workbook.xml": "<workbook/>",
@@ -249,15 +249,15 @@ def test_inventory_finds_excel_features(tmp_path):
     reports = {r.path.name: r for r in inventory.scan(tmp_path)}
     assert set(reports) == {"model.xlsm", "clean.docx", "plan.mpp"}
     model = reports["model.xlsm"]
-    assert {"macros", "power_query", "data_model", "slicers", "pivot_tables", "functions_later",
+    assert {"macros", "power_query", "data_model", "slicers", "pivot_tables", "functions_later", "functions_riot",
             "functions_missing", "aptos_font"} <= model.findings
-    assert model.functions == {"LAMBDA", "GROUPBY"}  # XLOOKUP is supported
+    assert model.functions == {"LAMBDA", "GROUPBY", "IMAGE"}  # XLOOKUP is supported
     assert reports["clean.docx"].ok
     assert reports["plan.mpp"].findings == {"not_supported_format"}
 
     report = inventory.markdown(list(reports.values()), tmp_path)
     assert "**3 files scanned**" in report
-    assert "GROUPBY" in report
+    assert "| GROUPBY | 1 | Riot add-in |" in report and "| IMAGE | 1 | missing |" in report
     inventory.write_csv(list(reports.values()), tmp_path / "inv.csv", tmp_path)
     assert "model.xlsm" in (tmp_path / "inv.csv").read_text(encoding="utf-8")
 

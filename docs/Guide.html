@@ -96,8 +96,14 @@ with Italian digital signatures is on the <a href="https://github.com/battles5/r
 <h2 id="excel">For Excel users</h2>
 <p>Calc handles formulas, pivot tables, filters, charts and the modern functions (XLOOKUP, FILTER,
 SORT, UNIQUE, LET, dynamic arrays). Not available: <b>Power Query</b> (queries can't be refreshed),
-<b>Power Pivot / Data Model</b>, GROUPBY / PIVOTBY, slicers. LAMBDA arrives with LibreOffice 27.2.
-VBA macros run only in part. Details in <a href="https://github.com/battles5/riot-office/blob/main/docs/COMPATIBILITY.md">COMPATIBILITY.md</a>.</p>
+<b>Power Pivot / Data Model</b>, slicers. LAMBDA arrives with LibreOffice 27.2.
+VBA macros run only in part.</p>
+<p>Riot Office adds <b>GROUPBY</b>, <b>PIVOTBY</b>, <b>PERCENTOF</b>, <b>REGEXTEST</b>,
+<b>REGEXEXTRACT</b> and <b>REGEXREPLACE</b> to Calc (category <i>Add-In</i>). They work when typed in
+Calc and are saved in <code>.ods</code>; in <code>.xlsx</code> they show <code>#NAME?</code> when the file
+is reopened, so keep such workbooks as <code>.ods</code>. Aggregations are given by name:
+<code>=GROUPBY(A1:A6; C1:C6; "SUM")</code>. Full reference in
+<a href="https://github.com/battles5/riot-office/blob/main/docs/EXCEL-FUNCTIONS.md">EXCEL-FUNCTIONS.md</a>. Details in <a href="https://github.com/battles5/riot-office/blob/main/docs/COMPATIBILITY.md">COMPATIBILITY.md</a>.</p>
 
 <h2 id="migrate">Moving from Microsoft Office</h2>
 <h3>1. Find the files that need attention</h3>
@@ -113,6 +119,7 @@ passes with the same page count and at least 0.95 similarity.</p>
 
 <h2 id="cli">Command line</h2>
 <pre><code>riot-office                          the window
+riot-office addin install|uninstall|status   the Excel functions for Calc
 riot-office doctor                   check LibreOffice, configuration, fonts, OCR
 riot-office open writer|calc|impress [files]
 riot-office convert FILES --to pdf [--pdfa] [--out FOLDER]

@@ -36,6 +36,22 @@ policy requires for unmodified builds. Rebuilding LibreOffice with Riot branding
 possible later (configure `--with-branding`), but it means owning a Windows and Linux build
 pipeline for every release; it is not worth it before the suite has proven itself.
 
+## Where the value is
+
+LibreOffice is the engine, not the product. What Riot Office is for is the gap between LibreOffice
+as it comes and the Word, Excel, PowerPoint and Acrobat people already know:
+
+1. **Missing features**, added as extensions that do not touch LibreOffice's core: the Excel
+   functions Calc lacks today (`GROUPBY`, `PIVOTBY`, `REGEX*`), a Power Query-like tool next,
+   and a PDF editor with Italian digital signatures.
+2. **The Office feel**: defaults, interface, fonts, shortcuts and templates tuned for people who
+   come from Microsoft Office.
+3. **Moving over safely**: an inventory of what in a pile of Office files needs attention, and a
+   fidelity check that measures how close the result is.
+
+The README says, feature by feature, what is done, what is planned and what is not possible.
+Every extension is designed to be contributed upstream if LibreOffice's maintainers want it.
+
 ## Components
 
 | Need | Component | Why |
@@ -50,8 +66,9 @@ pipeline for every release; it is not worth it before the suite has proven itsel
 
 ## Known gaps, stated up front
 
-- **Excel**: Power Query, Power Pivot / Data Model, GROUPBY / PIVOTBY and slicers are missing;
-  LAMBDA arrives with LibreOffice 27.2; VBA runs only in part. Measure with the inventory; keep a
+- **Excel**: Power Query, Power Pivot / Data Model and slicers are missing (GROUPBY / PIVOTBY exist
+  as Riot functions, which `.xlsx` files do not carry over); LAMBDA arrives with LibreOffice 27.2;
+  VBA runs only in part. Measure with the inventory; keep a
   few Excel licences where they are really needed.
 - **Fonts**: Aptos has no free metric clone yet.
 - **PDF**: paragraph-level text editing, PDF → Word and dynamic XFA forms will stay behind Acrobat.
