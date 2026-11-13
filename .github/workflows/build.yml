@@ -155,6 +155,16 @@ jobs:
           if ((Get-ChildItem "$env:ProgramFiles\LibreOffice\share\registry\riot-office*.xcd").Count -ne 4) { throw "Riot configuration missing" }
           if (-not (Test-Path "$env:WINDIR\Fonts\Carlito-Regular.ttf")) { throw "Carlito missing" }
 
+      - name: What the LibreOffice installer did (only when something failed)
+        if: failure()
+        run: |
+          $log = "$env:ProgramFiles\Riot Office\libreoffice-install.log"
+          if (Test-Path $log) {
+            Select-String -Path $log -Pattern "Return value 3|Error |error|Feature: gm_o_Onlineupdate|Installation (success|operation)|INSTALLDIR|APPLICATIONFOLDER|INSTALLLOCATION|TARGETDIR" |
+              Select-Object -First 40 | ForEach-Object { $_.Line.Substring(0, [Math]::Min(200, $_.Line.Length)) }
+          } else { Write-Host "no MSI log: the setup did not get as far as the LibreOffice installer" }
+          Get-ChildItem "$env:ProgramFiles" -Directory | Where-Object { $_.Name -match "Libre|Riot" } | ForEach-Object { Write-Host "dir: $($_.FullName)" }
+
       - name: The Excel functions are registered and calculate
         run: |
           $lo = "$env:ProgramFiles\LibreOffice\program"

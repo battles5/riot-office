@@ -109,7 +109,7 @@ Name: "{group}\{cm:Guide}"; Filename: "{app}\docs\Guide.html"
 Name: "{autodesktop}\{#AppName}"; Filename: "{#PyW}"; Parameters: "-m riot_office"; WorkingDir: "{userdocs}"; IconFilename: "{app}\assets\icon.ico"; Tasks: desktopicon
 
 [Run]
-Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\libreoffice\{#LoMsi}"" /qn /norestart ALLUSERS=1 UI_LANGS=en_US,it REGISTER_ALL_MSO_TYPES=1 ISCHECKFORPRODUCTUPDATES=0 QUICKSTART=0 CREATEDESKTOPLINK=0 RebootYesNo=No REMOVE=gm_o_Onlineupdate /l*v ""{tmp}\libreoffice-install.log"""; StatusMsg: "{cm:InstallingLO}"; Flags: waituntilterminated; Check: NeedLibreOffice; AfterInstall: CheckMsiResult
+Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\libreoffice\{#LoMsi}"" /qn /norestart ALLUSERS=1 UI_LANGS=en_US,it REGISTER_ALL_MSO_TYPES=1 ISCHECKFORPRODUCTUPDATES=0 QUICKSTART=0 CREATEDESKTOPLINK=0 RebootYesNo=No REMOVE=gm_o_Onlineupdate /l*v ""{app}\libreoffice-install.log"""; StatusMsg: "{cm:InstallingLO}"; Flags: waituntilterminated; Check: NeedLibreOffice; AfterInstall: CheckMsiResult
 Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\libreoffice\LibreOffice_{#LoVersion}_Win_x86-64_helppack_en-US.msi"" /qn /norestart ALLUSERS=1"; StatusMsg: "{cm:InstallingHelp}"; Flags: waituntilterminated; Check: NeedLibreOffice
 Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\libreoffice\LibreOffice_{#LoVersion}_Win_x86-64_helppack_it.msi"" /qn /norestart ALLUSERS=1"; StatusMsg: "{cm:InstallingHelp}"; Flags: waituntilterminated; Check: NeedLibreOffice
 Filename: "{#Py}"; Parameters: "-I -m riot_office config install"; WorkingDir: "{app}"; StatusMsg: "{cm:Configuring}"; Flags: runhidden waituntilterminated
@@ -150,7 +150,11 @@ end;
 procedure CheckMsiResult;
 begin
   if not FileExists(ExpandConstant('{commonpf64}\LibreOffice\program\soffice.exe')) then
-    MsgBox(FmtMessage(CustomMessage('LOFailed'), ['?', ExpandConstant('{tmp}\libreoffice-install.log')]), mbError, MB_OK);
+    begin
+      Log('LibreOffice is not where it should be after the MSI finished: ' + ExpandConstant('{commonpf64}\LibreOffice\program\soffice.exe'));
+      { MsgBox is not silenced by /SUPPRESSMSGBOXES (it would wait forever on an unattended PC); SuppressibleMsgBox is. }
+      SuppressibleMsgBox(FmtMessage(CustomMessage('LOFailed'), ['?', ExpandConstant('{app}\libreoffice-install.log')]), mbError, MB_OK, IDOK);
+    end;
 end;
 
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
