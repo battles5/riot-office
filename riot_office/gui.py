@@ -76,6 +76,10 @@ class App:
         self._menu()
         self.body = tk.Frame(self.root, bg=BG)
         self.body.pack(fill="both", expand=True)
+        # The status line is packed first, so that the window always leaves room for it.
+        self.status = tk.Label(self.body, textvariable=self.status_var, bg=PANEL, fg=MUTED, anchor="w",
+                               padx=12, pady=6, font=(self.body_family, 9))
+        self.status.pack(fill="x", side="bottom")
         self._header(self.body)
 
         apps = tk.Frame(self.body, bg=BG)
@@ -97,9 +101,6 @@ class App:
             button.grid(row=i // 3, column=i % 3, padx=6, pady=4, sticky="ew")
             tools.columnconfigure(i % 3, weight=1, uniform="tools")
 
-        self.status = tk.Label(self.body, textvariable=self.status_var, bg=PANEL, fg=MUTED, anchor="w",
-                               padx=12, pady=6, font=(self.body_family, 9))
-        self.status.pack(fill="x", side="bottom")
         self.refresh_status()
 
     def _menu(self) -> None:
