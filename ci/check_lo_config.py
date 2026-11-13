@@ -4,7 +4,7 @@
 
 Starts LibreOffice headless on a throw-away profile, connects through UNO (python3-uno on
 Ubuntu, LibreOffice's own python.exe on Windows) and reads back every value that
-config/riot-office.xcd sets. Exits non-zero when one of them differs.
+config/riot-office*.xcd set. Exits non-zero when one of them differs.
 """
 
 import subprocess

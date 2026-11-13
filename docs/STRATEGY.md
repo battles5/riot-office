@@ -18,7 +18,7 @@ community and two releases a year.
 So Riot Office **does not fork LibreOffice**. It ships the official, unmodified LibreOffice and
 changes only what LibreOffice lets anyone change:
 
-- a configuration layer (`config/riot-office.xcd`) for Office-like defaults;
+- configuration layers (`config/riot-office*.xcd`) for Office-like defaults;
 - fonts, language packs and dictionaries;
 - a launcher, PDF tools and migration helpers around it;
 - the installers.
@@ -41,7 +41,7 @@ pipeline for every release; it is not worth it before the suite has proven itsel
 | Need | Component | Why |
 |---|---|---|
 | Word / Excel / PowerPoint | LibreOffice 26.8 Writer, Calc, Impress | Best free OOXML support; same engine on Windows and Ubuntu |
-| Office look and defaults | `riot-office.xcd` | One file, same on both systems, defaults not locks |
+| Office look and defaults | `riot-office*.xcd` | Four small files, same on both systems, defaults not locks |
 | Fonts | Carlito, Caladea (+ Liberation on Ubuntu) | Metric-compatible with Calibri, Cambria, Arial, Times |
 | PDF basics | pypdf, LibreOffice export, OCRmyPDF + Tesseract | Permissive licences, already proven |
 | Full PDF editor | PDF4QT fork + Riot Firma (see [ROADMAP](ROADMAP.md)) | MIT-licensed, most complete open-source desktop PDF suite |

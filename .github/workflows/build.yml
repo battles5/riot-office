@@ -77,7 +77,7 @@ jobs:
       - name: Uninstall leaves no Riot configuration behind
         run: |
           sudo apt-get purge -y -q riot-office
-          test ! -e /etc/libreoffice/registry/riot-office.xcd
+          test -z "$(ls /etc/libreoffice/registry/riot-office*.xcd 2>/dev/null)"
           test ! -e /usr/bin/riot-office
 
       - uses: actions/upload-artifact@v4
@@ -128,7 +128,7 @@ jobs:
           Get-Content "$env:RUNNER_TEMP\setup.log" -Tail 40
           if ($p.ExitCode) { throw "setup exited with $($p.ExitCode)" }
           if (-not (Test-Path "$env:ProgramFiles\LibreOffice\program\soffice.exe")) { throw "LibreOffice missing" }
-          if (-not (Test-Path "$env:ProgramFiles\LibreOffice\share\registry\riot-office.xcd")) { throw "Riot configuration missing" }
+          if ((Get-ChildItem "$env:ProgramFiles\LibreOffice\share\registry\riot-office*.xcd").Count -ne 4) { throw "Riot configuration missing" }
           if (-not (Test-Path "$env:WINDIR\Fonts\Carlito-Regular.ttf")) { throw "Carlito missing" }
 
       - name: Doctor, configuration and a conversion

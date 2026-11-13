@@ -76,7 +76,7 @@ if ($LASTEXITCODE) { throw "pip install failed" }
 Step "Riot Office: program, configuration, artwork, documentation"
 New-Item -ItemType Directory -Force "$stage\riot_office", "$stage\config", "$stage\assets", "$stage\docs" | Out-Null
 Copy-Item "$root\riot_office\*.py" "$stage\riot_office"
-Copy-Item "$root\config\riot-office.xcd" "$stage\config"
+Copy-Item "$root\config\riot-office*.xcd" "$stage\config"
 Copy-Item "$root\assets\icon.ico", "$root\assets\icon.png", "$root\assets\wizard_side.bmp", "$root\assets\wizard_small.bmp" "$stage\assets"
 Copy-Item "$root\docs\Guide.html" "$stage\docs"
 Copy-Utf8Bom "$root\LICENSE.txt" "$stage\LICENSE.txt"

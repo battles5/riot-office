@@ -8,7 +8,7 @@ import pytest
 from pypdf import PdfReader, PdfWriter
 
 from riot_office import config, i18n, inventory, libreoffice, pdftools
-from riot_office.paths import CONFIG_XCD
+from riot_office.paths import CONFIG_DIR
 
 
 # ----- i18n -------------------------------------------------------------------------------
@@ -41,31 +41,58 @@ def test_language_is_saved(tmp_path, monkeypatch):
 
 
 def test_system_language_from_environment(monkeypatch):
+    monkeypatch.setattr(i18n.sys, "platform", "linux")  # the Windows branch asks the OS instead
     monkeypatch.setenv("LC_ALL", "it_IT.UTF-8")
     assert i18n.system_language() == "it"
+    monkeypatch.setenv("LC_ALL", "fr_FR.UTF-8")
+    monkeypatch.setenv("LANG", "de_DE.UTF-8")
+    assert i18n.system_language() == "en"
 
 
 # ----- configuration ------------------------------------------------------------------------
-def test_xcd_is_well_formed_and_sets_ooxml_defaults():
-    root = ET.parse(CONFIG_XCD).getroot()
-    values = {prop.get("{http://openoffice.org/2001/registry}name"): prop.findtext("value")
-              for prop in root.iter("prop")}
-    assert values["ooSetupFactoryDefaultFilter"]  # one of the three
-    text = CONFIG_XCD.read_text(encoding="utf-8")
+def _xcd_values() -> dict[str, str]:
+    values = {}
+    for xcd in config.shipped_files():
+        for prop in ET.parse(xcd).getroot().iter("prop"):
+            values[prop.get("{http://openoffice.org/2001/registry}name")] = prop.findtext("value")
+    return values
+
+
+def test_xcd_files_are_well_formed_and_set_ooxml_defaults():
+    names = [f.name for f in config.shipped_files()]
+    assert names == ["riot-office-calc.xcd", "riot-office-impress.xcd", "riot-office-writer.xcd", "riot-office.xcd"]
+    text = "".join(f.read_text(encoding="utf-8") for f in config.shipped_files())
     for filter_name in ("MS Word 2007 XML", "Calc MS Excel 2007 XML", "Impress MS PowerPoint 2007 XML"):
         assert f"<value>{filter_name}</value>" in text
-    assert values["WarnAlienFormat"] == "false"
+    assert _xcd_values()["WarnAlienFormat"] == "false"
 
 
-def test_install_and_uninstall(tmp_path):
+def test_module_files_depend_on_their_module():
+    # LibreOffice loads the registry files in no fixed order; only <dependency> orders them.
+    for module in ("writer", "calc", "impress"):
+        text = (CONFIG_DIR / f"riot-office-{module}.xcd").read_text(encoding="utf-8")
+        assert f'<dependency file="{module}"/>' in text
+
+
+def _fake_installation(tmp_path):
     program = tmp_path / "LibreOffice" / "program"
     program.mkdir(parents=True)
     (program / "soffice").write_text("")
-    inst = libreoffice.Installation(program / "soffice")
+    return libreoffice.Installation(program / "soffice")
+
+
+def test_install_and_uninstall(tmp_path):
+    inst = _fake_installation(tmp_path)
     assert not config.is_installed(inst)
-    target = config.install(inst)
-    assert target == tmp_path / "LibreOffice" / "share" / "registry" / "riot-office.xcd"
+    written = config.install(inst)
+    assert len(written) == 4
+    assert written[0].parent == tmp_path / "LibreOffice" / "share" / "registry"
     assert config.is_installed(inst)
+    (inst.registry_dir / "riot-office-old.xcd").write_text("<oor:data/>")  # left by an older version
+    config.install(inst)
+    assert not (inst.registry_dir / "riot-office-old.xcd").exists()
+    (inst.registry_dir / "riot-office-calc.xcd").write_text("changed")
+    assert not config.is_installed(inst)
     assert config.uninstall(inst)
     assert not config.uninstall(inst)
 
@@ -73,7 +100,7 @@ def test_install_and_uninstall(tmp_path):
 def test_install_refuses_broken_xcd(tmp_path):
     program = tmp_path / "program"
     program.mkdir()
-    bad = tmp_path / "bad.xcd"
+    bad = tmp_path / "riot-office-bad.xcd"
     bad.write_text("<oor:data")
     with pytest.raises(ET.ParseError):
         config.install(libreoffice.Installation(program / "soffice"), bad)

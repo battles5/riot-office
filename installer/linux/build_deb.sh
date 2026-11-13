@@ -20,9 +20,9 @@ install -d "$PKG/DEBIAN" "$PKG/usr/lib/riot-office/riot_office" "$PKG/usr/lib/ri
     "$PKG/usr/share/icons/hicolor/256x256/apps" "$PKG/usr/share/doc/riot-office"
 
 install -m 644 "$ROOT"/riot_office/*.py "$PKG/usr/lib/riot-office/riot_office/"
-install -m 644 "$ROOT/config/riot-office.xcd" "$PKG/usr/lib/riot-office/config/"
-# The configuration layer LibreOffice reads (a conffile: local edits survive upgrades).
-install -m 644 "$ROOT/config/riot-office.xcd" "$PKG/etc/libreoffice/registry/riot-office.xcd"
+install -m 644 "$ROOT"/config/riot-office*.xcd "$PKG/usr/lib/riot-office/config/"
+# The configuration layers LibreOffice reads (conffiles: local edits survive upgrades).
+install -m 644 "$ROOT"/config/riot-office*.xcd "$PKG/etc/libreoffice/registry/"
 install -m 644 "$ROOT/assets/icon.png" "$PKG/usr/lib/riot-office/assets/"
 install -m 644 "$ROOT/assets/icon.png" "$PKG/usr/share/icons/hicolor/256x256/apps/riot-office.png"
 install -m 644 "$ROOT/docs/Guide.html" "$PKG/usr/lib/riot-office/docs/"
@@ -58,7 +58,7 @@ desktop riot-writer "Riot Writer" "Riot Writer" "Documents (.docx, .odt)" "Docum
 desktop riot-calc "Riot Calc" "Riot Calc" "Spreadsheets (.xlsx, .ods)" "Fogli di calcolo (.xlsx, .ods)" "open calc"
 desktop riot-impress "Riot Impress" "Riot Impress" "Presentations (.pptx, .odp)" "Presentazioni (.pptx, .odp)" "open impress"
 
-echo "/etc/libreoffice/registry/riot-office.xcd" > "$PKG/DEBIAN/conffiles"
+(cd "$PKG" && find etc -type f | sed 's#^#/#' | sort) > "$PKG/DEBIAN/conffiles"
 SIZE="$(du -sk "$PKG" | cut -f1)"
 cat > "$PKG/DEBIAN/control" <<EOF
 Package: riot-office

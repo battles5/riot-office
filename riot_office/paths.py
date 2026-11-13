@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 ASSETS = ROOT / "assets"
 DOCS = ROOT / "docs"
-CONFIG_XCD = ROOT / "config" / "riot-office.xcd"
+CONFIG_DIR = ROOT / "config"
 ICON_PNG = ASSETS / "icon.png"
 ICON_ICO = ASSETS / "icon.ico"
 GUIDE = DOCS / "Guide.html"

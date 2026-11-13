@@ -51,7 +51,7 @@ def cmd_doctor(args) -> int:
         return 1
     print(f"  [ok] LibreOffice {inst.version() or '(version unknown)'}: {inst.soffice}")
     if config.is_installed(inst):
-        print(f"  [ok] Riot configuration: {config.installed_path(inst)}")
+        print(f"  [ok] Riot configuration: {len(config.installed_files(inst))} files in {inst.registry_dir}")
     else:
         problems += 1
         print(f"  [!!] Riot configuration missing or outdated: run 'riot-office config install' as administrator")
@@ -83,7 +83,8 @@ def cmd_config(args) -> int:
     inst = _need_libreoffice()
     if args.action == "install":
         try:
-            print(f"installed {config.install(inst, Path(args.source) if args.source else config.CONFIG_XCD)}")
+            for target in config.install(inst, Path(args.source) if args.source else config.CONFIG_DIR):
+                print(f"installed {target}")
         except PermissionError:
             raise SystemExit("permission denied: run as administrator (Windows) or with sudo (Linux)")
     elif args.action == "uninstall":
@@ -174,7 +175,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("config", help="install, remove or check the Riot configuration of LibreOffice")
     p.add_argument("action", choices=("install", "uninstall", "status"))
-    p.add_argument("--source", help="a different .xcd file to install")
+    p.add_argument("--source", help="a different folder (or single .xcd file) to install")
     p.set_defaults(func=cmd_config)
 
     p = sub.add_parser("language", help="show or set the interface language (Riot Office and LibreOffice)")

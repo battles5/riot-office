@@ -133,8 +133,9 @@ riot-office config install|uninstall|status</code></pre>
     registered, no update check.</li>
   <li>Ubuntu: <code>sudo apt install ./riot-office_&lt;version&gt;_all.deb</code>, or publish it in an
     internal APT repository.</li>
-  <li>The configuration is one file: <code>&lt;LibreOffice&gt;\share\registry\riot-office.xcd</code> on
-    Windows, <code>/etc/libreoffice/registry/riot-office.xcd</code> on Ubuntu. Defaults, not locks.
+  <li>The configuration is four small files, <code>riot-office*.xcd</code>, in
+    <code>&lt;LibreOffice&gt;\share\registry\</code> on Windows and
+    <code>/etc/libreoffice/registry/</code> on Ubuntu. Defaults, not locks.
     To enforce settings on Windows use Group Policy under
     <code>HKLM\Software\Policies\LibreOffice</code>.</li>
   <li>Updates: install newer LibreOffice point releases promptly — they fix bugs that malicious

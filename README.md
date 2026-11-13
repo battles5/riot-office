@@ -152,7 +152,7 @@ On Windows the command is `"C:\Program Files\Riot Office\runtime\python.exe" -m 
 
 ```
 riot_office/       launcher (Tk), command line, LibreOffice helpers, PDF tools, inventory, fidelity
-config/            riot-office.xcd: the LibreOffice configuration layer
+config/            riot-office*.xcd: the LibreOffice configuration layers (common + one per module)
 installer/         Windows setup (Inno Setup + PowerShell) and Ubuntu .deb, pinned downloads
 assets/            artwork and the script that draws it
 docs/              guide, compatibility matrix, roadmap, strategy

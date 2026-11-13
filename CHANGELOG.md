@@ -7,8 +7,8 @@ First release.
 - **Riot Office = LibreOffice 26.8.3, set up like a classic local Office.** Writer, Calc and
   Impress save as `.docx` / `.xlsx` / `.pptx` by default, never ask "keep current format?",
   use the tabbed (ribbon-like) interface, run only trusted macros, and never phone home
-  (no update check, no crash report upload). One configuration layer, `config/riot-office.xcd`,
-  identical on Windows and Ubuntu; users can still change every setting.
+  (no update check, no crash report upload). Four small configuration layers, `config/riot-office*.xcd`
+  (common, Writer, Calc, Impress), identical on Windows and Ubuntu; users can still change every setting.
 - **English and Italian** from day one: the launcher, the Windows setup wizard, the Linux menu
   entries and LibreOffice itself (interface and help). The Language menu switches the launcher
   and LibreOffice together.
