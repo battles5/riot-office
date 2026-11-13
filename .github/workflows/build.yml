@@ -17,6 +17,11 @@ on:
 permissions:
   contents: write
 
+# A new push replaces the run in progress for the same branch.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   linux:
     runs-on: ubuntu-24.04
@@ -129,10 +134,22 @@ jobs:
         run: powershell -ExecutionPolicy Bypass -File installer\windows\build_installer.ps1
 
       - name: Install it silently
+        timeout-minutes: 25
         run: |
           $exe = Get-Item dist\RiotOffice-Setup-*.exe
-          $p = Start-Process $exe.FullName -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/LOG=$env:RUNNER_TEMP\setup.log" -Wait -PassThru
-          Get-Content "$env:RUNNER_TEMP\setup.log" -Tail 40
+          $log = "$env:RUNNER_TEMP\setup.log"
+          $p = Start-Process $exe.FullName -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/LOG=$log" -PassThru
+          if (-not $p.WaitForExit(900000)) {   # 15 minutes: a healthy setup takes about three
+            Write-Host "::error::the setup is still running after 15 minutes; what it was doing:"
+            Get-Content $log -Tail 60
+            Get-ChildItem $env:TEMP -Recurse -Filter libreoffice-install.log -ErrorAction SilentlyContinue |
+              ForEach-Object { Write-Host "--- $($_.FullName)"; Get-Content $_.FullName -Tail 40 }
+            Get-Process | Where-Object { $_.Name -match "msiexec|python|soffice|unopkg|Riot|vc_redist|VC_redist" } |
+              Format-Table Id, Name, CPU, StartTime -AutoSize | Out-String | Write-Host
+            Stop-Process -Id $p.Id -Force
+            throw "setup hung"
+          }
+          Get-Content $log -Tail 40
           if ($p.ExitCode) { throw "setup exited with $($p.ExitCode)" }
           if (-not (Test-Path "$env:ProgramFiles\LibreOffice\program\soffice.exe")) { throw "LibreOffice missing" }
           if ((Get-ChildItem "$env:ProgramFiles\LibreOffice\share\registry\riot-office*.xcd").Count -ne 4) { throw "Riot configuration missing" }

@@ -13,12 +13,12 @@ Differences from Excel, deliberately small and documented in docs/EXCEL-FUNCTION
 - Errors are raised as ``ValueError`` and shown by Calc as an error value; there is no ``#N/A``.
 """
 
+from __future__ import annotations
+
 import math
 import re
 import statistics
-from collections.abc import Callable, Iterable, Sequence
-
-Table = Sequence[Sequence[object]]
+from typing import Callable, Iterable, Sequence
 
 LABELS = {
     "total": {"en": "Total", "it": "Totale"},

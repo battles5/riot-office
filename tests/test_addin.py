@@ -25,7 +25,7 @@ IDL = (ROOT / "addins" / "calc" / "idl" / "XRiotFunctions.idl").read_text(encodi
 def idl_methods() -> dict[str, list[str]]:
     """Method name -> parameter names, read from the IDL."""
     found = {}
-    for match in re.finditer(r"any\s+(\w+)\s*\((.*?)\)\s*;", IDL, re.S):
+    for match in re.finditer(r"(?:any|double|sequence<\s*sequence<\s*any\s*>\s*>)\s+(\w+)\s*\((.*?)\)\s*;", IDL, re.S):
         found[match.group(1)] = re.findall(r"\]\s*(?:sequence<[^;]*?>|\w+)\s+(\w+)\s*[,)]", match.group(2) + ")")
     return found
 

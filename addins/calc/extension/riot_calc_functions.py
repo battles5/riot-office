@@ -8,7 +8,6 @@ IllegalArgumentException, which Calc shows as an error value in the cell.
 import os
 import sys
 
-import uno
 import unohelper
 from com.sun.star.lang import IllegalArgumentException, Locale, XServiceInfo, XServiceName
 from com.sun.star.sheet import XAddIn
@@ -31,16 +30,15 @@ def _optional(options, index):
     return None if value == "" else value
 
 
-def _rows(result):
-    """A function result in the form Calc wants: arrays typed as sequence< sequence< any > >, scalars as they are.
+def _matrix(result):
+    """A function result as the matrix Calc expects: tuples of tuples, a scalar becoming 1x1.
 
-    The methods return ``any``, and pyuno would turn a plain tuple into sequence< any >, which Calc
-    shows as #VALUE!: the type has to be named.
+    The IDL declares the return type as sequence< sequence< any > >, so pyuno converts exactly that.
     """
     if isinstance(result, (list, tuple)):
         rows = result if result and isinstance(result[0], (list, tuple)) else [result]
-        return uno.Any("[][]any", tuple(tuple(row) for row in rows))
-    return result
+        return tuple(tuple(row) for row in rows)
+    return ((result,),)
 
 
 class RiotFunctions(unohelper.Base, XRiotFunctions, XAddIn, XServiceName, XServiceInfo):
@@ -48,9 +46,9 @@ class RiotFunctions(unohelper.Base, XRiotFunctions, XAddIn, XServiceName, XServi
         self.ctx = ctx
         self.locale = Locale("en", "US", "")
 
-    def _call(self, fn, *args, **kwargs):
+    def _call(self, fn, *args, convert=_matrix, **kwargs):
         try:
-            return _rows(fn(*args, **kwargs))
+            return convert(fn(*args, **kwargs))
         except ValueError as exc:
             raise IllegalArgumentException(str(exc), self, 0)
 
@@ -68,7 +66,7 @@ class RiotFunctions(unohelper.Base, XRiotFunctions, XAddIn, XServiceName, XServi
                           lang=self._lang)
 
     def percentof(self, data_subset, data_all):
-        return self._call(xf.percentof, data_subset, data_all)
+        return self._call(xf.percentof, data_subset, data_all, convert=float)
 
     def regextest(self, text, pattern, options):
         return self._call(xf.regextest, text, pattern, _optional(options, 0))
