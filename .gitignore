@@ -1,0 +1,12 @@
+# Environment and build
+.venv/
+__pycache__/
+*.egg-info/
+build/
+dist/
+
+# Local settings and reports
+settings.json
+inventory.md
+inventory.csv
+fidelity.md

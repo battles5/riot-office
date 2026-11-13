@@ -1,0 +1,158 @@
+name: Build and test
+
+# Every push: unit tests, then the real thing on both systems.
+#   Linux:   build the .deb, install it with apt on a clean Ubuntu 24.04, check that LibreOffice
+#            sees the Riot configuration, run conversions / PDF tools / inventory / fidelity,
+#            screenshot the launcher in English and Italian.
+#   Windows: build the setup, install it silently, check LibreOffice and the configuration,
+#            run a conversion.
+# A version tag (v*) also attaches the .deb and the setup to that tag's release.
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the .deb
+        run: bash installer/linux/build_deb.sh
+
+      - name: Install it with apt (pulls LibreOffice, Italian language pack, fonts)
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends ./dist/riot-office_*_all.deb \
+            python3-uno python3-pytest xvfb imagemagick libreoffice-help-it
+          dpkg -s riot-office | head -3
+          soffice --version
+
+      - name: Unit tests (system Python, distribution pypdf)
+        run: python3 -m pytest -q -p no:cacheprovider
+
+      - name: Doctor
+        run: riot-office doctor
+
+      - name: LibreOffice sees the Riot configuration
+        run: /usr/bin/python3 ci/check_lo_config.py soffice
+
+      - name: "Integration: convert, PDF tools, inventory, fidelity, language"
+        run: |
+          set -x
+          W="$RUNNER_TEMP/work" && mkdir -p "$W/corpus" "$W/refs"
+          cat > "$W/sample.html" <<'EOF'
+          <h1>Riot Office</h1><p>Loud colours, local files. Colori forti, file in locale.</p>
+          <table><tr><td>1</td><td>2</td></tr></table>
+          EOF
+          riot-office convert "$W/sample.html" --to docx --out "$W/corpus"
+          riot-office convert "$W/corpus/sample.docx" --to pdf --pdfa --out "$W/out"
+          test -s "$W/out/sample.pdf"
+          grep -aq "pdfaid" "$W/out/sample.pdf"
+          riot-office pdf merge "$W/out/merged.pdf" "$W/out/sample.pdf" "$W/out/sample.pdf"
+          riot-office pdf split "$W/out/merged.pdf" --out "$W/out/parts"
+          test "$(ls "$W"/out/parts/*.pdf | wc -l)" -ge 2
+          riot-office pdf rotate "$W/out/merged.pdf" "$W/out/rotated.pdf" --degrees 180 --pages 1
+          riot-office inventory "$W/corpus" --out "$W/inventory.md" --csv "$W/inventory.csv"
+          cat "$W/inventory.md"
+          # Fidelity against itself must pass: same page count, same text.
+          cp "$W/out/sample.pdf" "$W/refs/sample.pdf"
+          riot-office fidelity "$W/corpus" "$W/refs" --out "$W/fidelity.md"
+          cat "$W/fidelity.md"
+          grep -q "Passed (same pages and similarity >= 0.95): \*\*1/1\*\*" "$W/fidelity.md"
+          riot-office language it
+          grep -q '<value>it</value>' "$HOME/.config/libreoffice/4/user/registrymodifications.xcu"
+          riot-office language en
+
+      - name: Launcher screenshots (virtual display)
+        run: xvfb-run -a -s "-screen 0 1024x768x24" python3 ci/gui_screenshots.py "$RUNNER_TEMP/screenshots"
+
+      - name: Uninstall leaves no Riot configuration behind
+        run: |
+          sudo apt-get purge -y -q riot-office
+          test ! -e /etc/libreoffice/registry/riot-office.xcd
+          test ! -e /usr/bin/riot-office
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: riot-office-deb
+          path: dist/riot-office_*_all.deb
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-linux
+          path: ${{ runner.temp }}/screenshots
+
+      - name: Attach to the tag's release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
+            gh release create "$GITHUB_REF_NAME" --title "RIOT OFFICE ${GITHUB_REF_NAME#v}" --notes "See CHANGELOG.md." || true
+          gh release upload "$GITHUB_REF_NAME" dist/riot-office_*_all.deb --clobber
+
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Unit tests
+        run: |
+          python -m pip install -q pypdf pytest
+          python -m pytest -q -p no:cacheprovider
+
+      - name: Inno Setup
+        run: |
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) { choco install innosetup -y --no-progress }
+
+      - name: Build the setup
+        run: powershell -ExecutionPolicy Bypass -File installer\windows\build_installer.ps1
+
+      - name: Install it silently
+        run: |
+          $exe = Get-Item dist\RiotOffice-Setup-*.exe
+          $p = Start-Process $exe.FullName -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/LOG=$env:RUNNER_TEMP\setup.log" -Wait -PassThru
+          Get-Content "$env:RUNNER_TEMP\setup.log" -Tail 40
+          if ($p.ExitCode) { throw "setup exited with $($p.ExitCode)" }
+          if (-not (Test-Path "$env:ProgramFiles\LibreOffice\program\soffice.exe")) { throw "LibreOffice missing" }
+          if (-not (Test-Path "$env:ProgramFiles\LibreOffice\share\registry\riot-office.xcd")) { throw "Riot configuration missing" }
+          if (-not (Test-Path "$env:WINDIR\Fonts\Carlito-Regular.ttf")) { throw "Carlito missing" }
+
+      - name: Doctor, configuration and a conversion
+        run: |
+          $py = "$env:ProgramFiles\Riot Office\runtime\python.exe"
+          & $py -I -m riot_office doctor
+          if ($LASTEXITCODE) { throw "doctor failed" }
+          & "$env:ProgramFiles\LibreOffice\program\python.exe" ci\check_lo_config.py "$env:ProgramFiles\LibreOffice\program\soffice.exe"
+          if ($LASTEXITCODE) { throw "LibreOffice does not see the configuration" }
+          Set-Content "$env:RUNNER_TEMP\sample.html" "<h1>Riot Office</h1><p>Colori forti, file in locale.</p>"
+          & $py -I -m riot_office convert "$env:RUNNER_TEMP\sample.html" --to docx --out "$env:RUNNER_TEMP\out"
+          & $py -I -m riot_office convert "$env:RUNNER_TEMP\out\sample.docx" --to pdf --out "$env:RUNNER_TEMP\out"
+          if (-not (Test-Path "$env:RUNNER_TEMP\out\sample.pdf")) { throw "conversion failed" }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: riot-office-setup
+          path: dist/RiotOffice-Setup-*.exe
+
+      - name: Attach to the tag's release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view $env:GITHUB_REF_NAME 2>$null
+          if ($LASTEXITCODE) { gh release create $env:GITHUB_REF_NAME --title "RIOT OFFICE $($env:GITHUB_REF_NAME.TrimStart('v'))" --notes "See CHANGELOG.md."; $global:LASTEXITCODE = 0 }
+          gh release upload $env:GITHUB_REF_NAME (Get-Item dist\RiotOffice-Setup-*.exe).FullName --clobber

@@ -1,0 +1,28 @@
+[project]
+name = "riot-office"
+dynamic = ["version"]
+description = "RIOT OFFICE: a local desktop office suite built on LibreOffice, for Windows and Ubuntu."
+readme = "README.md"
+license = "MIT-0"
+authors = [{ name = "Orso Peruzzi" }]
+requires-python = ">=3.10"
+dependencies = ["pypdf>=4.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pillow>=10"]
+
+[project.scripts]
+riot-office = "riot_office.cli:main"
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["riot_office"]
+
+[tool.setuptools.dynamic]
+version = { attr = "riot_office.__version__" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

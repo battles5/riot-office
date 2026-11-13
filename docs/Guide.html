@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Riot Office Guide</title>
+<style>
+  :root {
+    --bg: #12002b; --panel: #1f0a45; --text: #f6e9ff; --muted: #a58fc7;
+    --pink: #ff2975; --cyan: #2de2e6; --yellow: #ffd640; --purple: #b026ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.6 "Segoe UI", "DejaVu Sans", system-ui, sans-serif;
+  }
+  header {
+    padding: 56px 16px 72px; text-align: center; position: relative; overflow: hidden;
+    background:
+      repeating-linear-gradient(to bottom, transparent 0 18px, rgba(176,38,255,.55) 18px 19px) bottom / 100% 34% no-repeat,
+      linear-gradient(#0d0221, #48106a 66%, #18042c 66%, #08010f);
+  }
+  header h1 {
+    margin: 0; font-size: clamp(40px, 9vw, 84px); font-style: italic; letter-spacing: 2px;
+    color: #ffe1ee; text-shadow: 0 0 8px var(--pink), 0 0 24px var(--pink), 0 0 48px var(--pink);
+  }
+  header p { margin: 8px 0 0; color: var(--cyan); letter-spacing: 6px; text-transform: uppercase;
+    text-shadow: 0 0 10px var(--cyan); }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; }
+  h2 { color: var(--pink); text-shadow: 0 0 10px rgba(255,41,117,.6); margin-top: 48px;
+    border-bottom: 1px solid var(--purple); padding-bottom: 6px; }
+  h3 { color: var(--cyan); }
+  a { color: var(--cyan); }
+  code, pre { font-family: "Cascadia Code", "DejaVu Sans Mono", monospace; }
+  code { background: var(--panel); padding: 1px 5px; border-radius: 4px; color: var(--yellow); }
+  pre { background: var(--panel); padding: 12px 14px; border-left: 3px solid var(--pink);
+    overflow-x: auto; border-radius: 4px; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; display: block; overflow-x: auto; }
+  th, td { border: 1px solid #3b1d6e; padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); color: var(--yellow); }
+  .note { background: var(--panel); border-left: 3px solid var(--yellow); padding: 10px 14px; border-radius: 4px; }
+  nav { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: center; margin-top: 8px; }
+  footer { text-align: center; color: var(--muted); font-size: 13px; padding-bottom: 32px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>RIOT OFFICE</h1>
+  <p>loud colours, local files</p>
+</header>
+<main>
+<nav>
+  <a href="#start">Getting started</a><a href="#language">Language</a><a href="#pdf">PDF tools</a>
+  <a href="#excel">Excel users</a><a href="#migrate">Moving from Office</a><a href="#cli">Command line</a>
+  <a href="#admin">For IT</a><a href="#help">Troubleshooting</a>
+</nav>
+
+<h2 id="start">Getting started</h2>
+<p>Riot Office is a desktop office suite that runs entirely on your PC. It is built on
+LibreOffice and set up to feel like the Office you know:</p>
+<table>
+  <tr><th>You know</th><th>Open</th><th>Saves by default as</th></tr>
+  <tr><td>Word</td><td>Riot Writer</td><td><code>.docx</code></td></tr>
+  <tr><td>Excel</td><td>Riot Calc</td><td><code>.xlsx</code></td></tr>
+  <tr><td>PowerPoint</td><td>Riot Impress</td><td><code>.pptx</code></td></tr>
+  <tr><td>Acrobat</td><td>PDF tools in the Riot Office window</td><td><code>.pdf</code></td></tr>
+</table>
+<p>Start <b>Riot Office</b> from the Start menu (Windows) or the applications menu (Ubuntu) and
+click Writer, Calc or Impress, or <i>Open a file</i>. Double-clicking a <code>.docx</code>,
+<code>.xlsx</code> or <code>.pptx</code> file opens it directly.</p>
+<p>The toolbar is the tabbed one (File, Home, Insert, Layout, ...). If you prefer classic menus and
+toolbars: <i>View → User Interface → Standard Toolbar</i>.</p>
+
+<h2 id="language">Language</h2>
+<p>Riot Office speaks English and Italian. Use the <b>Language</b> menu (<i>Lingua</i>) of the Riot
+Office window: the window changes at once, LibreOffice changes the next time it starts (close its
+windows first). Spelling is checked in English and Italian; set a document's language from
+<i>Tools → Language</i>.</p>
+
+<h2 id="pdf">PDF tools</h2>
+<table>
+  <tr><th>Button</th><th>What it does</th></tr>
+  <tr><td>Merge PDFs</td><td>Choose several PDFs in the order you want; one PDF comes out, with a bookmark per file.</td></tr>
+  <tr><td>Split a PDF</td><td>Type ranges such as <code>1-3,4-10</code> for one file per range, or leave it empty for one file per page.</td></tr>
+  <tr><td>Rotate pages</td><td>90, 180 or 270 degrees clockwise, on all pages or on a list such as <code>1,3-5</code>.</td></tr>
+  <tr><td>Convert to PDF</td><td>Any document Riot Office opens. Answer <i>Yes</i> to get PDF/A-2b, the format for long-term archiving.</td></tr>
+  <tr><td>Make searchable (OCR)</td><td>Adds a text layer to scanned PDFs so you can search and copy text. Needs OCRmyPDF and Tesseract (below).</td></tr>
+</table>
+<div class="note"><b>OCR</b> — Ubuntu: <code>sudo apt install ocrmypdf tesseract-ocr-ita tesseract-ocr-eng</code>.
+Windows: install Tesseract with <code>winget install -e --id tesseract-ocr.tesseract</code> (add the
+Italian language during setup) and OCRmyPDF with <code>pip install ocrmypdf</code>.</div>
+<p>To view or annotate a PDF, open it with LibreOffice Draw or your usual viewer. A full PDF editor
+with Italian digital signatures is on the <a href="https://github.com/battles5/riot-office/blob/main/docs/ROADMAP.md">roadmap</a>.</p>
+
+<h2 id="excel">For Excel users</h2>
+<p>Calc handles formulas, pivot tables, filters, charts and the modern functions (XLOOKUP, FILTER,
+SORT, UNIQUE, LET, dynamic arrays). Not available: <b>Power Query</b> (queries can't be refreshed),
+<b>Power Pivot / Data Model</b>, GROUPBY / PIVOTBY, slicers. LAMBDA arrives with LibreOffice 27.2.
+VBA macros run only in part. Details in <a href="https://github.com/battles5/riot-office/blob/main/docs/COMPATIBILITY.md">COMPATIBILITY.md</a>.</p>
+
+<h2 id="migrate">Moving from Microsoft Office</h2>
+<h3>1. Find the files that need attention</h3>
+<pre><code>riot-office inventory "D:\Shared" --out inventory.md --csv inventory.csv</code></pre>
+<p>Nothing is opened or run: the report lists macros, Power Query, data models, slicers, functions
+Calc lacks, the Aptos font, SmartArt and encrypted files.</p>
+<h3>2. Measure how close the result is</h3>
+<p>Copy a few hundred typical documents into a folder. Export each one to PDF from Microsoft Office
+into a second folder with the same names. Then:</p>
+<pre><code>riot-office fidelity corpus office-pdfs --out fidelity.md</code></pre>
+<p>Each document gets the page count in Office and in Riot Office and a text similarity score; it
+passes with the same page count and at least 0.95 similarity.</p>
+
+<h2 id="cli">Command line</h2>
+<pre><code>riot-office                          the window
+riot-office doctor                   check LibreOffice, configuration, fonts, OCR
+riot-office open writer|calc|impress [files]
+riot-office convert FILES --to pdf [--pdfa] [--out FOLDER]
+riot-office pdf merge OUT IN...
+riot-office pdf split IN [--ranges 1-3,4-10] [--out FOLDER]
+riot-office pdf rotate IN OUT --degrees 90 [--pages 1,3-5]
+riot-office pdf ocr IN OUT [--lang ita+eng]
+riot-office inventory FOLDER [--out report.md] [--csv report.csv]
+riot-office fidelity CORPUS REFERENCES [--out report.md]
+riot-office language en|it
+riot-office config install|uninstall|status</code></pre>
+<p>On Windows the command is <code>"C:\Program Files\Riot Office\runtime\python.exe" -m riot_office</code>.</p>
+
+<h2 id="admin">For IT</h2>
+<ul>
+  <li>Windows silent install: <code>RiotOffice-Setup-&lt;version&gt;.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /LANG=it</code>.
+    LibreOffice is installed per machine with <code>UI_LANGS=en_US,it</code>, Office file types
+    registered, no update check.</li>
+  <li>Ubuntu: <code>sudo apt install ./riot-office_&lt;version&gt;_all.deb</code>, or publish it in an
+    internal APT repository.</li>
+  <li>The configuration is one file: <code>&lt;LibreOffice&gt;\share\registry\riot-office.xcd</code> on
+    Windows, <code>/etc/libreoffice/registry/riot-office.xcd</code> on Ubuntu. Defaults, not locks.
+    To enforce settings on Windows use Group Policy under
+    <code>HKLM\Software\Policies\LibreOffice</code>.</li>
+  <li>Updates: install newer LibreOffice point releases promptly — they fix bugs that malicious
+    documents can trigger.</li>
+</ul>
+
+<h2 id="help">Troubleshooting</h2>
+<table>
+  <tr><th>Problem</th><th>Solution</th></tr>
+  <tr><td>The window says LibreOffice was not found</td><td>Run the setup again (Windows) or <code>sudo apt install libreoffice-writer libreoffice-calc libreoffice-impress</code>.</td></tr>
+  <tr><td>"The Riot configuration is not installed"</td><td>Windows: run the setup again. Ubuntu: <code>sudo apt install --reinstall riot-office</code>.</td></tr>
+  <tr><td>LibreOffice is still in the old language</td><td>Close every LibreOffice window, including the one in the system tray, and open it again.</td></tr>
+  <tr><td>A document has a different number of pages</td><td>Check fonts with <code>riot-office doctor</code>; documents in Aptos may reflow.</td></tr>
+  <tr><td>Anything else</td><td><code>riot-office doctor</code> lists what is in place and what is missing.</td></tr>
+</table>
+</main>
+<footer>Riot Office · MIT-0 · based on LibreOffice, not affiliated with The Document Foundation, Microsoft or Adobe</footer>
+</body>
+</html>

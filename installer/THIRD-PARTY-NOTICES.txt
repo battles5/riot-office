@@ -1,0 +1,33 @@
+RIOT OFFICE - THIRD-PARTY NOTICES
+
+Riot Office's own files (launcher, configuration, installers, documentation, artwork) are under
+the MIT No Attribution licence (LICENSE.txt). Riot Office installs or bundles the following
+components, each under its own licence. None of them is modified by Riot Office.
+
+- LibreOffice (The Document Foundation) - MPL-2.0, with parts under LGPL-3.0+ and other licences
+  https://www.libreoffice.org/about-us/licenses/
+  "LibreOffice" is a registered trademark of The Document Foundation. Riot Office is an
+  independent distribution "based on LibreOffice" and is not affiliated with or endorsed by
+  The Document Foundation. Source code: https://www.libreoffice.org/download/source-code/
+
+- Carlito font (Lukasz Dziedzic, tyPoland) - SIL Open Font License 1.1 (fonts\OFL-carlito.txt)
+  https://github.com/googlefonts/carlito
+
+- Caladea font (Carolina Giovagnoli, Andres Torresi, Huerta Tipografica) - SIL Open Font License 1.1
+  (fonts\OFL-caladea.txt)  https://github.com/huertatipografica/Caladea
+
+- CPython 3.12 (Python Software Foundation) - PSF-2.0  https://www.python.org/
+  Windows build from python-build-standalone (Astral) - MPL-2.0 for the build scripts
+  https://github.com/astral-sh/python-build-standalone
+  It includes Tcl/Tk (BSD-style licence), OpenSSL (Apache-2.0), SQLite (public domain),
+  zlib (zlib licence), libffi (MIT), bzip2 (bzip2 licence), XZ Utils (0BSD).
+
+- pypdf - BSD-3-Clause  https://github.com/py-pdf/pypdf
+
+Optional, installed separately by the user (not bundled):
+- OCRmyPDF - MPL-2.0  https://github.com/ocrmypdf/OCRmyPDF
+- Tesseract OCR - Apache-2.0  https://github.com/tesseract-ocr/tesseract
+
+Microsoft, Word, Excel, PowerPoint, Office and Microsoft 365 are trademarks of Microsoft
+Corporation; Adobe and Acrobat are trademarks of Adobe Inc. They are mentioned only to describe
+file compatibility. Riot Office is not affiliated with Microsoft or Adobe.
