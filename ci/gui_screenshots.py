@@ -31,8 +31,10 @@ def main() -> int:
 
         def grab():
             dest = out / f"launcher_{codes[i]}.png"
-            subprocess.run(["import", "-window", "root", "-crop",
-                            f"{root.winfo_width()}x{root.winfo_height()}+0+0", str(dest)], check=True)
+            # On X11 the menu bar sits above the area Tk measures: add its height (winfo_rooty) to the crop.
+            height = root.winfo_height() + root.winfo_rooty()
+            subprocess.run(["import", "-window", "root", "-crop", f"{root.winfo_width()}x{height}+0+0", str(dest)],
+                           check=True)
             print("screenshot", dest)
             shot(i + 1)
 
