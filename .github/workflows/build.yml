@@ -152,6 +152,9 @@ jobs:
           Get-Content $log -Tail 40
           if ($p.ExitCode) { throw "setup exited with $($p.ExitCode)" }
           if (-not (Test-Path "$env:ProgramFiles\LibreOffice\program\soffice.exe")) { throw "LibreOffice missing" }
+          foreach ($lang in "it", "en-US") {
+            if (-not (Test-Path "$env:ProgramFiles\LibreOffice\share\registry\Langpack-$lang.xcd")) { throw "LibreOffice interface language $lang missing" }
+          }
           if ((Get-ChildItem "$env:ProgramFiles\LibreOffice\share\registry\riot-office*.xcd").Count -ne 4) { throw "Riot configuration missing" }
           if (-not (Test-Path "$env:WINDIR\Fonts\Carlito-Regular.ttf")) { throw "Carlito missing" }
 

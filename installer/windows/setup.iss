@@ -109,7 +109,7 @@ Name: "{group}\{cm:Guide}"; Filename: "{app}\docs\Guide.html"
 Name: "{autodesktop}\{#AppName}"; Filename: "{#PyW}"; Parameters: "-m riot_office"; WorkingDir: "{userdocs}"; IconFilename: "{app}\assets\icon.ico"; Tasks: desktopicon
 
 [Run]
-Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\libreoffice\{#LoMsi}"" /qn /norestart ALLUSERS=1 UI_LANGS=en_US,it REGISTER_ALL_MSO_TYPES=1 ISCHECKFORPRODUCTUPDATES=0 QUICKSTART=0 CREATEDESKTOPLINK=0 RebootYesNo=No REMOVE=gm_o_Onlineupdate /l*v ""{app}\libreoffice-install.log"""; StatusMsg: "{cm:InstallingLO}"; Flags: waituntilterminated; Check: NeedLibreOffice; AfterInstall: CheckMsiResult
+Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\libreoffice\{#LoMsi}"" /qn /norestart ALLUSERS=1 ADDLOCAL=ALL UI_LANGS=en_US,it REGISTER_ALL_MSO_TYPES=1 ISCHECKFORPRODUCTUPDATES=0 QUICKSTART=0 CREATEDESKTOPLINK=0 RebootYesNo=No REMOVE=gm_o_Onlineupdate /l*v ""{app}\libreoffice-install.log"""; StatusMsg: "{cm:InstallingLO}"; Flags: waituntilterminated; Check: NeedLibreOffice; AfterInstall: CheckMsiResult
 Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\libreoffice\LibreOffice_{#LoVersion}_Win_x86-64_helppack_en-US.msi"" /qn /norestart ALLUSERS=1"; StatusMsg: "{cm:InstallingHelp}"; Flags: waituntilterminated; Check: NeedLibreOffice
 Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\libreoffice\LibreOffice_{#LoVersion}_Win_x86-64_helppack_it.msi"" /qn /norestart ALLUSERS=1"; StatusMsg: "{cm:InstallingHelp}"; Flags: waituntilterminated; Check: NeedLibreOffice
 Filename: "{#Py}"; Parameters: "-I -m riot_office config install"; WorkingDir: "{app}"; StatusMsg: "{cm:Configuring}"; Flags: runhidden waituntilterminated
