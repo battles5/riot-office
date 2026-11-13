@@ -136,6 +136,34 @@ def test_module_for_extensions():
     assert libreoffice.module_for(Path("a.unknown")) == "writer"
 
 
+def test_convert_names_filters_explicitly(tmp_path, monkeypatch):
+    calls = []
+
+    def fake_run(args, **kwargs):
+        calls.append(args)
+        out = Path(args[args.index("--outdir") + 1])
+        (out / (Path(args[-1]).stem + "." + args[args.index("--convert-to") + 1].split(":")[0])).write_text("x")
+
+        class Done:
+            returncode, stdout, stderr = 0, "", ""
+        return Done()
+
+    monkeypatch.setattr(libreoffice.subprocess, "run", fake_run)
+    monkeypatch.setattr(libreoffice, "CONVERT_PROFILE", tmp_path / "profile")
+    inst = libreoffice.Installation(tmp_path / "soffice")
+    html = tmp_path / "a.html"
+    html.write_text("<p>x</p>")
+    libreoffice.convert(inst, [html], tmp_path / "out", "docx")
+    args = calls[-1]
+    assert "--infilter=HTML (StarWriter)" in args
+    assert args[args.index("--convert-to") + 1] == "docx:MS Word 2007 XML"
+    sheet = tmp_path / "b.csv"
+    sheet.write_text("1,2")
+    libreoffice.convert(inst, [sheet], tmp_path / "out", "pdf", pdfa=True)
+    spec = calls[-1][calls[-1].index("--convert-to") + 1]
+    assert spec.startswith("pdf:calc_pdf_Export:") and "SelectPdfVersion" in spec
+
+
 def test_version_from_ini(tmp_path):
     program = tmp_path / "program"
     program.mkdir()

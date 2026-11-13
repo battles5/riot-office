@@ -22,6 +22,17 @@ PDF_FILTERS = {
     "impress": "impress_pdf_Export",
     "draw": "draw_pdf_Export",
 }
+# Export filters by (module, target extension). Naming the filter explicitly makes conversions work
+# for documents LibreOffice would otherwise open in another module (HTML opens in Writer/Web).
+EXPORT_FILTERS = {
+    ("writer", "docx"): "MS Word 2007 XML", ("writer", "odt"): "writer8", ("writer", "rtf"): "Rich Text Format",
+    ("writer", "txt"): "Text (encoded):UTF8", ("writer", "html"): "HTML (StarWriter)",
+    ("calc", "xlsx"): "Calc MS Excel 2007 XML", ("calc", "ods"): "calc8", ("calc", "csv"): "Text - txt - csv (StarCalc)",
+    ("impress", "pptx"): "Impress MS PowerPoint 2007 XML", ("impress", "odp"): "impress8",
+    ("draw", "odg"): "draw8",
+}
+# Documents that must be loaded by a given filter (so that the module's export filters apply).
+INPUT_FILTERS = {"html": "HTML (StarWriter)", "htm": "HTML (StarWriter)"}
 PDFA2B = '{"SelectPdfVersion":{"type":"long","value":"2"}}'
 EXTENSION_MODULE = {
     **dict.fromkeys(("doc", "docx", "docm", "dotx", "dot", "odt", "ott", "rtf", "txt", "html", "htm", "md"), "writer"),
@@ -156,11 +167,19 @@ def convert(inst: Installation, files: list[Path], out_dir: Path, target: str = 
     CONVERT_PROFILE.mkdir(parents=True, exist_ok=True)
     written = []
     for src in files:
-        spec = target
+        module = module_for(src)
         if target == "pdf":
-            spec = f"pdf:{PDF_FILTERS[module_for(src)]}" + (f":{PDFA2B}" if pdfa else "")
+            spec = f"pdf:{PDF_FILTERS[module]}" + (f":{PDFA2B}" if pdfa else "")
+        elif (module, target) in EXPORT_FILTERS:
+            spec = f"{target}:{EXPORT_FILTERS[(module, target)]}"
+        else:
+            spec = target
         args = [str(inst.console_soffice), f"-env:UserInstallation={CONVERT_PROFILE.as_uri()}", "--headless",
-                "--norestore", "--nolockcheck", "--convert-to", spec, "--outdir", str(out_dir), str(src)]
+                "--norestore", "--nolockcheck"]
+        input_filter = INPUT_FILTERS.get(src.suffix.lower().lstrip("."))
+        if input_filter:
+            args.append(f"--infilter={input_filter}")
+        args += ["--convert-to", spec, "--outdir", str(out_dir), str(src)]
         result = subprocess.run(args, capture_output=True, text=True, timeout=timeout)
         dest = out_dir / f"{src.stem}.{target}"
         if result.returncode != 0 or not dest.exists():

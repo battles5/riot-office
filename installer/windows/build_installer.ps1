@@ -23,8 +23,11 @@ function Step($text) { Write-Host "`n== $text" -ForegroundColor Magenta }
 function Get-Pinned($url, $sha256, $dest) {
     # Download once into the cache, always verify the hash.
     if (-not (Test-Path $dest)) {
-        Write-Host "   downloading $(Split-Path $dest -Leaf)"
-        Invoke-WebRequest -Uri $url -OutFile "$dest.part" -UseBasicParsing
+        Write-Host "   downloading $url"
+        for ($try = 1; ; $try++) {   # mirrors answer 502/503 now and then: retry a few times
+            try { Invoke-WebRequest -Uri $url -OutFile "$dest.part" -UseBasicParsing; break }
+            catch { if ($try -ge 5) { throw }; Write-Host "   attempt $try failed ($($_.Exception.Message)); retrying"; Start-Sleep -Seconds (5 * $try) }
+        }
         Move-Item "$dest.part" $dest
     }
     $hash = (Get-FileHash $dest -Algorithm SHA256).Hash.ToLower()
